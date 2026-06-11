@@ -55,7 +55,7 @@ async def route(req: RouteRequest):
     coords.append([req.end.lng, req.end.lat])
 
     # Validar perfil
-    valid_profiles = ('cycling-road', 'cycling-regular', 'cycling-mountain', 'cycling-electric')
+    valid_profiles = ('cycling-road', 'cycling-mountain', 'cycling-electric', 'driving-car')
     if req.profile not in valid_profiles:
         raise HTTPException(400, f'Perfil inválido: {req.profile}')
 
@@ -64,9 +64,11 @@ async def route(req: RouteRequest):
     opts = {}
     if avoid:
         opts["avoid_features"] = avoid
-    opts["profile_params"] = {
-        "weightings": {"steepness_difficulty": req.steepness_difficulty}
-    }
+    # profile_params solo para perfiles ciclistas
+    if req.profile.startswith("cycling"):
+        opts["profile_params"] = {
+            "weightings": {"steepness_difficulty": req.steepness_difficulty}
+        }
 
     async with httpx.AsyncClient(timeout=30) as c:
         r = await c.post(

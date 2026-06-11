@@ -156,11 +156,12 @@ header .sp{flex:1}
 
         <div style="margin-top:10px">
           <div class="slabel" style="margin-bottom:6px">Perfil</div>
-          <div style="display:flex;gap:4px">
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
             <button class="pill on" id="prof-road"    onclick="setProfile('cycling-road')">🚴 Carretera</button>
-            <button class="pill"    id="prof-regular" onclick="setProfile('cycling-regular')">🏙 Regular</button>
             <button class="pill"    id="prof-mountain" onclick="setProfile('cycling-mountain')">⛰ Montaña</button>
+            <button class="pill"    id="prof-car"     onclick="setProfile('driving-car')">🚗 Coche</button>
           </div>
+          <div style="font-size:10px;color:var(--m);margin-top:5px" id="prof-hint">Perfil estándar para bici de carretera</div>
         </div>
       </div>
 
@@ -437,13 +438,19 @@ function geo() {
 
 // ── Perfil ───────────────────────────────────────────────────────────────────
 let currentProfile = 'cycling-road';
+const PROF_HINTS = {
+  'cycling-road':    'Perfil estándar para bici de carretera',
+  'cycling-mountain':'Para MTB y caminos de tierra',
+  'driving-car':     'Usa carreteras principales — puede coger la PO-532',
+};
 function setProfile(p) {
   currentProfile = p;
-  ['road','regular','mountain'].forEach(k => {
-    document.getElementById(`prof-${k}`).classList.remove('on');
+  ['road','mountain','car'].forEach(k => {
+    document.getElementById(`prof-${k}`)?.classList.remove('on');
   });
-  const key = p.replace('cycling-','');
-  document.getElementById(`prof-${key}`).classList.add('on');
+  const key = p === 'driving-car' ? 'car' : p.replace('cycling-','');
+  document.getElementById(`prof-${key}`)?.classList.add('on');
+  document.getElementById('prof-hint').textContent = PROF_HINTS[p] || '';
 }
 
 // ── Calcular ──────────────────────────────────────────────────────────────
