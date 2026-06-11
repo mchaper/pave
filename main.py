@@ -12,7 +12,7 @@ from pydantic import BaseModel
 import httpx, uvicorn
 
 # API key desde variable de entorno (Railway/Render) o hardcoded para desarrollo local
-ORS_API_KEY = os.getenv("ORS_API_KEY", "TU_API_KEY_AQUI")
+ORS_API_KEY = os.getenv("ORS_API_KEY", "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImI4OGI5NzFlMzI1NjRiZTI4YThhMGM1ZDJlNDkxZDk4IiwiaCI6Im11cm11cjY0In0=")
 
 app = FastAPI(title="Pavé API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
