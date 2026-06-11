@@ -14,7 +14,7 @@ import httpx, uvicorn
 # API key desde variable de entorno (Railway/Render) o hardcoded para desarrollo local
 ORS_API_KEY = os.getenv("ORS_API_KEY")
 if not ORS_API_KEY:
-    raise RuntimeError("No env variable ORS_API_KEY")=")
+    raise RuntimeError("No env varibale ORS_API_KEY")
 
 app = FastAPI(title="Pavé API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
