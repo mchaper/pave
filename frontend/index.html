@@ -153,6 +153,15 @@ header .sp{flex:1}
         </div>
 
         <button class="btn-addpt" onclick="addPoint()">+ Añadir parada</button>
+
+        <div style="margin-top:10px">
+          <div class="slabel" style="margin-bottom:6px">Perfil</div>
+          <div style="display:flex;gap:4px">
+            <button class="pill on" id="prof-road"    onclick="setProfile('cycling-road')">🚴 Carretera</button>
+            <button class="pill"    id="prof-regular" onclick="setProfile('cycling-regular')">🏙 Regular</button>
+            <button class="pill"    id="prof-mountain" onclick="setProfile('cycling-mountain')">⛰ Montaña</button>
+          </div>
+        </div>
       </div>
 
 
@@ -426,6 +435,17 @@ function geo() {
   );
 }
 
+// ── Perfil ───────────────────────────────────────────────────────────────────
+let currentProfile = 'cycling-road';
+function setProfile(p) {
+  currentProfile = p;
+  ['road','regular','mountain'].forEach(k => {
+    document.getElementById(`prof-${k}`).classList.remove('on');
+  });
+  const key = p.replace('cycling-','');
+  document.getElementById(`prof-${key}`).classList.add('on');
+}
+
 // ── Calcular ──────────────────────────────────────────────────────────────
 async function calc() {
   const filled = pts.filter(p=>p.place);
@@ -446,7 +466,7 @@ async function calc() {
   try {
     const r = await fetch(`${API}/route`, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({start:{lat:start.lat,lng:start.lng}, end:{lat:end.lat,lng:end.lng}, waypoints, avoid_features:avoidFeatures, steepness_difficulty:fitness})
+      body: JSON.stringify({start:{lat:start.lat,lng:start.lng}, end:{lat:end.lat,lng:end.lng}, waypoints, avoid_features:avoidFeatures, steepness_difficulty:fitness, profile:currentProfile})
     });
     if(!r.ok) { alert('Error: '+(await r.json()).detail); return; }
     const rt = await r.json();

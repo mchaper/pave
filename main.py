@@ -28,6 +28,7 @@ class RouteRequest(BaseModel):
     waypoints: list[Coord] = []
     avoid_features: list[str] = []
     steepness_difficulty: int = 2  # 0=Novato 1=Moderado 2=Amateur 3=Pro
+    profile: str = 'cycling-road'
 
 
 @app.get("/geocode")
@@ -53,7 +54,12 @@ async def route(req: RouteRequest):
         coords.append([wp.lng, wp.lat])
     coords.append([req.end.lng, req.end.lat])
 
-    # Solo valores válidos para cycling-road: ferries, fords, steps
+    # Validar perfil
+    valid_profiles = ('cycling-road', 'cycling-regular', 'cycling-mountain', 'cycling-electric')
+    if req.profile not in valid_profiles:
+        raise HTTPException(400, f'Perfil inválido: {req.profile}')
+
+    # Solo valores válidos para cycling-*: ferries, fords, steps
     avoid = [f for f in req.avoid_features if f in ("ferries", "fords", "steps")]
     opts = {}
     if avoid:
@@ -64,7 +70,7 @@ async def route(req: RouteRequest):
 
     async with httpx.AsyncClient(timeout=30) as c:
         r = await c.post(
-            "https://api.heigit.org/openrouteservice/v2/directions/cycling-road/geojson",
+            f"https://api.heigit.org/openrouteservice/v2/directions/{req.profile}/geojson",
             headers={"Authorization": ORS_API_KEY, "Content-Type": "application/json"},
             json={"coordinates": coords, "instructions": True, "elevation": True, "options": opts}
         )
