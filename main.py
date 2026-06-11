@@ -12,7 +12,9 @@ from pydantic import BaseModel
 import httpx, uvicorn
 
 # API key desde variable de entorno (Railway/Render) o hardcoded para desarrollo local
-ORS_API_KEY = os.getenv("ORS_API_KEY", "TU_API_KEY_AQUI")
+ORS_API_KEY = os.getenv("ORS_API_KEY")
+if not ORS_API_KEY:
+    raise RuntimeError("No env varibale ORS_API_KEY")
 
 app = FastAPI(title="Pavé API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -35,7 +37,9 @@ async def geocode(q: str):
         r = await c.get(
             "https://nominatim.openstreetmap.org/search",
             params={"q": q, "format": "json", "limit": 5},
-            headers={"User-Agent": "Pavé/1.0"}
+            headers={"User-Agent": "Pave-CyclingApp/1.0 (https://pave.onrender.com)",
+                        "Accept-Language": "es,en",
+                        "Referer": "https://pave.onrender.com"}
         )
     return [{"name": i["display_name"], "lat": float(i["lat"]), "lng": float(i["lon"])} for i in r.json()]
 
