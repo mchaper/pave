@@ -28,42 +28,46 @@ header .sp{flex:1}
 .sec{padding:12px 14px;border-bottom:1px solid var(--b)}
 .slabel{font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--m);margin-bottom:8px}
 
-/* ── Puntos de ruta ── */
-.prow{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
-.prow:last-child{margin-bottom:0}
-.dot{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;margin-top:1px;flex-shrink:0}
-.dot.a{background:var(--y);color:#0c0e14}
-.dot.b{background:var(--r);color:#fff}
-.dot.wp{background:var(--s3);color:var(--t);border:1px solid var(--b)}
-.pcontent{flex:1;min-width:0}
+/* ── Puntos ── */
+.pt-row{display:flex;align-items:flex-start;gap:6px;margin-bottom:8px}
+.pt-row:last-child{margin-bottom:0}
+.pt-label{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;margin-top:2px;border:1px solid var(--b)}
+.pt-label.first{background:var(--y);color:#0c0e14;border-color:var(--y)}
+.pt-label.last{background:var(--r);color:#fff;border-color:var(--r)}
+.pt-label.mid{background:var(--s3);color:var(--t)}
+.pt-content{flex:1;min-width:0}
+.pt-remove{width:20px;height:20px;border-radius:4px;background:transparent;border:none;color:var(--m);cursor:pointer;font-size:12px;flex-shrink:0;margin-top:3px;transition:.2s;display:flex;align-items:center;justify-content:center}
+.pt-remove:hover{color:var(--r)}
+.pt-remove.hidden{visibility:hidden}
+
+/* ── Conector visual entre puntos ── */
+.pt-connector{width:22px;display:flex;justify-content:center;margin-bottom:-2px;margin-top:-2px;flex-shrink:0}
+.pt-connector-line{width:1px;height:10px;background:var(--b)}
+
+/* ── Search input ── */
 .siw{position:relative}
-.si{width:100%;background:var(--s2);border:1px solid var(--b);color:var(--t);padding:7px 28px 7px 9px;border-radius:var(--rad);font-size:12px;outline:none;transition:.2s}
+.si{width:100%;background:var(--s2);border:1px solid var(--b);color:var(--t);padding:7px 26px 7px 9px;border-radius:var(--rad);font-size:12px;outline:none;transition:.2s}
 .si:focus{border-color:rgba(232,208,28,.4)}
 .si::placeholder{color:var(--m)}
-.sc{position:absolute;right:7px;top:50%;transform:translateY(-50%);color:var(--m);cursor:pointer;font-size:13px;display:none;background:none;border:none}
+.sc{position:absolute;right:6px;top:50%;transform:translateY(-50%);color:var(--m);cursor:pointer;font-size:12px;display:none;background:none;border:none}
 .sc.on{display:block}
 .sugs{position:absolute;top:calc(100% + 3px);left:0;right:0;z-index:500;background:var(--s2);border:1px solid var(--b);border-radius:var(--rad);overflow:hidden;display:none;box-shadow:0 8px 20px rgba(0,0,0,.4)}
 .sugs.open{display:block}
 .si-item{padding:8px 10px;cursor:pointer;border-bottom:1px solid var(--b);transition:.12s}
 .si-item:last-child{border-bottom:none}
 .si-item:hover{background:var(--s3)}
-.si-n{font-size:12px;color:var(--t)}.si-s{font-size:10px;color:var(--m);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.si-n{font-size:12px;color:var(--t)}
+.si-s{font-size:10px;color:var(--m);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* ── Waypoints ── */
-.wp-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;position:relative}
-.wp-remove{width:20px;height:20px;border-radius:50%;background:transparent;border:1px solid var(--b);color:var(--m);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:3px;transition:.2s}
-.wp-remove:hover{border-color:var(--r);color:var(--r)}
-.btn-addwp{width:100%;margin-top:8px;padding:6px;border-radius:var(--rad);background:transparent;border:1px dashed var(--b);color:var(--m);font-size:11px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:5px}
-.btn-addwp:hover{border-color:var(--y);color:var(--y)}
+/* ── Map mode display ── */
+.mpd{background:var(--s2);border:1px solid var(--b);border-radius:var(--rad);padding:7px 9px;font-size:11px;color:var(--m);min-height:32px;display:flex;align-items:center}
+.mpd.set{color:var(--t);border-color:rgba(232,208,28,.25)}
 
-/* ── Map mode ── */
-.mpd{background:var(--s2);border:1px solid var(--b);border-radius:var(--rad);padding:7px 9px;font-size:11px;color:var(--m);min-height:34px;display:flex;align-items:center}
-.mpd.set{color:var(--t);border-color:rgba(232,208,28,.3)}
-.mhint{font-size:11px;color:var(--y);margin-top:4px}
-.bgeo{width:100%;margin-top:6px;padding:6px;border-radius:var(--rad);background:var(--s2);border:1px solid var(--b);color:var(--m);font-size:11px;cursor:pointer;transition:.2s}
+/* ── Botones ── */
+.btn-addpt{width:100%;margin-top:6px;padding:7px;border-radius:var(--rad);background:transparent;border:1px dashed var(--b);color:var(--m);font-size:11px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:5px}
+.btn-addpt:hover{border-color:var(--y);color:var(--y)}
+.bgeo{width:100%;margin-top:5px;padding:6px;border-radius:var(--rad);background:var(--s2);border:1px solid var(--b);color:var(--m);font-size:11px;cursor:pointer;transition:.2s}
 .bgeo:hover{border-color:var(--m);color:var(--t)}
-
-/* ── Opciones ── */
 .orow{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .orow:last-child{margin-bottom:0}
 .olbl{font-size:12px;color:var(--m)}
@@ -73,13 +77,9 @@ header .sp{flex:1}
 .tsl::after{content:'';position:absolute;left:2px;top:2px;width:11px;height:11px;background:var(--m);border-radius:50%;transition:.2s}
 .tog input:checked+.tsl{background:var(--yd);border-color:var(--y)}
 .tog input:checked+.tsl::after{transform:translateX(15px);background:var(--y)}
-
-/* ── Botones ── */
 .bcalc{width:100%;padding:10px;border:none;border-radius:var(--rad);background:var(--y);color:#0c0e14;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:.2s}
 .bcalc:hover:not(:disabled){opacity:.9}
 .bcalc:disabled{opacity:.3;cursor:not-allowed}
-
-/* ── Stats ── */
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .stat{background:var(--s2);border:1px solid var(--b);border-radius:var(--rad);padding:8px 10px;text-align:center}
 .sv{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;line-height:1}
@@ -95,8 +95,6 @@ header .sp{flex:1}
 .step:last-child{border-bottom:none}
 .sic{width:20px;height:20px;border-radius:4px;background:var(--s3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;color:var(--m)}
 .stxt{flex:1;color:var(--t);line-height:1.4}.sd{color:var(--m);white-space:nowrap;font-size:10px}
-
-/* ── Loading ── */
 .loading{display:none;position:absolute;inset:0;background:rgba(12,14,20,.8);z-index:400;flex-direction:column;align-items:center;justify-content:center;gap:12px}
 .loading.on{display:flex}
 .spin{width:36px;height:36px;border-radius:50%;border:3px solid var(--s3);border-top-color:var(--y);animation:sp .7s linear infinite}
@@ -128,55 +126,19 @@ header .sp{flex:1}
     <div class="mbanner" id="mb">Escribe un lugar para buscarlo</div>
     <div class="pscroll">
       <div class="sec">
-        <div class="slabel">Ruta</div>
-
-        <!-- ORIGEN -->
-        <div class="prow" id="origin-row">
-          <div class="dot a">A</div>
-          <div class="pcontent">
-            <div id="osw" class="siw">
-              <input class="si" id="oi" placeholder="Origen…" autocomplete="off"
-                     oninput="hs('o',this.value)" onfocus="ss('o')">
-              <button class="sc" id="oc" onclick="cp('o')">✕</button>
-              <div class="sugs" id="osg"></div>
-            </div>
-            <div id="omw" style="display:none">
-              <div class="mpd" id="omd"><span id="omt">Sin fijar</span></div>
-              <div class="mhint" id="omh">↑ Clic para fijar origen</div>
-            </div>
-            <button class="bgeo" onclick="geo()">📍 Mi ubicación</button>
-          </div>
-        </div>
-
-        <!-- WAYPOINTS (se insertan aquí dinámicamente) -->
-        <div id="waypoints-container"></div>
-
-        <!-- DESTINO -->
-        <div class="prow" id="dest-row">
-          <div class="dot b">B</div>
-          <div class="pcontent">
-            <div id="dsw" class="siw">
-              <input class="si" id="di" placeholder="Destino…" autocomplete="off"
-                     oninput="hs('d',this.value)" onfocus="ss('d')">
-              <button class="sc" id="dc" onclick="cp('d')">✕</button>
-              <div class="sugs" id="dsg"></div>
-            </div>
-            <div id="dmw" style="display:none">
-              <div class="mpd" id="dmd"><span id="dmt">Sin fijar</span></div>
-              <div class="mhint" id="dmh" style="display:none">↑ Ahora fija el destino</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Botón añadir punto -->
-        <button class="btn-addwp" onclick="addWaypoint()">
-          + Añadir punto intermedio
-        </button>
+        <div class="slabel">Paradas</div>
+        <div id="pts-container"></div>
+        <button class="btn-addpt" onclick="addPoint()">+ Añadir parada</button>
       </div>
 
-      <div class="sec"><div class="slabel">Opciones</div>
-
-        <div class="orow"><span class="olbl">Evitar sin asfaltar</span>
+      <div class="sec">
+        <div class="slabel">Opciones</div>
+        <div class="orow">
+          <span class="olbl">Volver al origen</span>
+          <label class="tog"><input type="checkbox" id="loop"><div class="tsl"></div></label>
+        </div>
+        <div class="orow">
+          <span class="olbl">Evitar sin asfaltar</span>
           <label class="tog"><input type="checkbox" id="oun"><div class="tsl"></div></label>
         </div>
       </div>
@@ -194,7 +156,7 @@ header .sp{flex:1}
             <div class="stat"><div class="sv" id="sb">—</div><div class="su">M BAJADA</div></div>
           </div>
           <div class="ewrap"><div class="elbl">Elevación</div>
-            <svg id="esvg" viewBox="0 0 270 54" preserveAspectRatio="none" style="display:block;width:100%;height:54px">
+            <svg viewBox="0 0 270 54" preserveAspectRatio="none" style="display:block;width:100%;height:54px">
               <defs><linearGradient id="eg" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stop-color="#e8d01c" stop-opacity=".35"/>
                 <stop offset="100%" stop-color="#e8d01c" stop-opacity=".03"/>
@@ -221,292 +183,263 @@ header .sp{flex:1}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const API = '';
-const S = {
-  mode: 'search',
-  o: null,      // origen
-  d: null,      // destino
-  wps: [],      // waypoints [{id, place}]
-  route: null,
-  wpCounter: 0
-};
 
-// ── Mapa ────────────────────────────────────────────────────────────────
-const map = L.map('map').setView([40.4,-3.7], 6);
+// ── Estado ────────────────────────────────────────────────────────────────
+// pts = [{id, place}]  — lista ordenada de paradas, mínimo 2
+let pts = [];
+let ptCounter = 0;
+const ST = {};        // timers debounce
+const markers = {};   // id -> L.marker
+let routeLayer = null;
+let mode = 'search';
+
+// ── Mapa ──────────────────────────────────────────────────────────────────
+const map = L.map('map').setView([42.2, -8.7], 8);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
   {attribution:'© OSM © CARTO', maxZoom:19}).addTo(map);
 
-let mA=null, mB=null, rl=null;
-const wpMarkers = {}; // id -> marker
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-function mk(lat, lng, label, color) {
-  return L.marker([lat,lng], {icon: L.divIcon({
+function markerColor(i, total) {
+  if(i === 0)          return '#e8d01c'; // A — amarillo
+  if(i === total - 1)  return '#e84d1c'; // último — rojo
+  return '#a78bfa';                       // intermedios — violeta
+}
+
+function mkMarker(lat, lng, label, color) {
+  return L.marker([lat, lng], {icon: L.divIcon({
     html: `<div style="width:24px;height:24px;background:${color};border:2px solid rgba(255,255,255,.8);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:sans-serif;font-size:10px;font-weight:700;color:#0c0e14;box-shadow:0 2px 8px rgba(0,0,0,.5)">${label}</div>`,
     className:'', iconSize:[24,24], iconAnchor:[12,12]
   })});
 }
 
-// Clic en el mapa — asigna al siguiente punto sin fijar
-map.on('click', e => {
-  if(S.mode !== 'map') return;
-  const {lat, lng} = e.latlng;
-  const name = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-  const place = {lat, lng, name};
+function refreshMarkers() {
+  // Borrar todos y redibujar con colores/letras actualizados
+  Object.values(markers).forEach(m => m.remove());
+  for(const k in markers) delete markers[k];
+  pts.forEach((pt, i) => {
+    if(!pt.place) return;
+    const label = LETTERS[i] || (i+1);
+    const color = markerColor(i, pts.length);
+    markers[pt.id] = mkMarker(pt.place.lat, pt.place.lng, label, color).addTo(map);
+  });
+}
 
-  if (!S.o) { sp('o', place); }
-  else {
-    // Ver si hay algún waypoint sin fijar
-    const emptyWp = S.wps.find(w => !w.place);
-    if (emptyWp) { spWp(emptyWp.id, place); }
-    else if (!S.d) { sp('d', place); }
+map.on('click', e => {
+  if(mode !== 'map') return;
+  const {lat, lng} = e.latlng;
+  const empty = pts.find(p => !p.place);
+  if(empty) {
+    setPlace(empty.id, {lat, lng, name:`${lat.toFixed(4)}, ${lng.toFixed(4)}`});
+    updateMapHint();
   }
-  uMH();
 });
 
-// ── Modo ────────────────────────────────────────────────────────────────
+// ── Render lista de puntos ────────────────────────────────────────────────
+function renderPoints() {
+  const container = document.getElementById('pts-container');
+  container.innerHTML = '';
+
+  pts.forEach((pt, i) => {
+    const isFirst = i === 0;
+    const isLast  = i === pts.length - 1;
+    const letter  = LETTERS[i] || (i+1);
+    const labelClass = isFirst ? 'first' : isLast ? 'last' : 'mid';
+    const canRemove = pts.length > 2;
+
+    // Línea conectora entre puntos
+    if(i > 0) {
+      const conn = document.createElement('div');
+      conn.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:2px';
+      conn.innerHTML = `<div style="width:22px;display:flex;justify-content:center"><div style="width:1px;height:8px;background:var(--b)"></div></div>`;
+      container.appendChild(conn);
+    }
+
+    const row = document.createElement('div');
+    row.className = 'pt-row';
+    row.id = `pt-row-${pt.id}`;
+
+    // Input según modo
+    const searchHTML = `
+      <div id="pt-sw-${pt.id}" class="siw" style="display:${mode==='search'?'block':'none'}">
+        <input class="si" id="pt-inp-${pt.id}"
+               placeholder="${isFirst ? 'Origen…' : isLast ? 'Destino…' : 'Parada…'}"
+               autocomplete="off"
+               value="${pt.place ? pt.place.name.split(',')[0] : ''}"
+               oninput="hsP(${pt.id},this.value)"
+               onfocus="ssP(${pt.id})">
+        <button class="sc ${pt.place?'on':''}" id="pt-cl-${pt.id}" onclick="clearPlace(${pt.id})">✕</button>
+        <div class="sugs" id="pt-sugs-${pt.id}"></div>
+      </div>`;
+
+    const mapHTML = `
+      <div id="pt-mw-${pt.id}" style="display:${mode==='map'?'block':'none'}">
+        <div class="mpd ${pt.place?'set':''}" id="pt-mpd-${pt.id}">
+          ${pt.place ? pt.place.name.split(',')[0] : 'Sin fijar'}
+        </div>
+      </div>`;
+
+    const geoBtn = isFirst
+      ? `<button class="bgeo" onclick="geo()">📍 Mi ubicación</button>`
+      : '';
+
+    row.innerHTML = `
+      <div class="pt-label ${labelClass}">${letter}</div>
+      <div class="pt-content">
+        ${searchHTML}
+        ${mapHTML}
+        ${geoBtn}
+      </div>
+      <button class="pt-remove ${canRemove?'':'hidden'}" onclick="removePoint(${pt.id})" title="Eliminar parada">✕</button>
+    `;
+    container.appendChild(row);
+  });
+
+  checkReady();
+  updateMapHint();
+}
+
+// ── Gestión de puntos ─────────────────────────────────────────────────────
+function addPoint() {
+  pts.push({id: ++ptCounter, place: null});
+  renderPoints();
+}
+
+function removePoint(id) {
+  if(pts.length <= 2) return;
+  pts = pts.filter(p => p.id !== id);
+  if(markers[id]) { markers[id].remove(); delete markers[id]; }
+  renderPoints();
+  refreshMarkers(); // re-colorear
+}
+
+function setPlace(id, place) {
+  const pt = pts.find(p => p.id === id);
+  if(!pt) return;
+  pt.place = place;
+  renderPoints();
+  refreshMarkers();
+  fitAll();
+  checkReady();
+}
+
+function clearPlace(id) {
+  const pt = pts.find(p => p.id === id);
+  if(!pt) return;
+  pt.place = null;
+  if(markers[id]) { markers[id].remove(); delete markers[id]; }
+  renderPoints();
+  checkReady();
+}
+
+function checkReady() {
+  const filled = pts.filter(p => p.place);
+  document.getElementById('bc').disabled = filled.length < 2;
+}
+
+function fitAll() {
+  const filled = pts.filter(p => p.place);
+  if(filled.length >= 2)
+    map.fitBounds(filled.map(p => [p.place.lat, p.place.lng]), {padding:[60,60]});
+  else if(filled.length === 1)
+    map.setView([filled[0].place.lat, filled[0].place.lng], 13);
+}
+
+// ── Modo mapa / búsqueda ──────────────────────────────────────────────────
 function setMode(m) {
-  S.mode = m;
+  mode = m;
   document.getElementById('ps').classList.toggle('on', m==='search');
   document.getElementById('pm').classList.toggle('on', m==='map');
-  ['o','d'].forEach(p => {
-    document.getElementById(p==='o'?'osw':'dsw').style.display = m==='search'?'block':'none';
-    document.getElementById(p==='o'?'omw':'dmw').style.display = m==='map'?'block':'none';
-  });
-  // Actualizar waypoints al cambiar modo
-  S.wps.forEach(w => {
-    const sw = document.getElementById(`wp-search-${w.id}`);
-    const mw = document.getElementById(`wp-map-${w.id}`);
-    if(sw) sw.style.display = m==='search'?'block':'none';
-    if(mw) mw.style.display = m==='map'?'block':'none';
-  });
   document.getElementById('mb').textContent = m==='search'
     ? 'Escribe un lugar para buscarlo'
-    : 'Haz clic en el mapa para fijar los puntos';
-  if(m==='map') uMH(); else document.getElementById('mch').classList.remove('on');
-  if(S.o) upUI('o', S.o);
-  if(S.d) upUI('d', S.d);
+    : 'Haz clic en el mapa para fijar las paradas';
+  renderPoints();
+  if(m !== 'map') document.getElementById('mch').classList.remove('on');
 }
 
-function uMH() {
+function updateMapHint() {
   const h = document.getElementById('mch');
-  if(S.mode !== 'map') { h.classList.remove('on'); return; }
-  if (!S.o) { h.textContent = 'Clic para fijar origen (A)'; h.classList.add('on'); }
-  else if (S.wps.some(w => !w.place)) { h.textContent = 'Clic para fijar punto intermedio'; h.classList.add('on'); }
-  else if (!S.d) { h.textContent = 'Clic para fijar destino (B)'; h.classList.add('on'); }
-  else { h.classList.remove('on'); }
-}
-
-// ── Waypoints ────────────────────────────────────────────────────────────
-function addWaypoint() {
-  const id = ++S.wpCounter;
-  S.wps.push({id, place: null});
-
-  const container = document.getElementById('waypoints-container');
-  const div = document.createElement('div');
-  div.className = 'wp-row';
-  div.id = `wp-row-${id}`;
-  div.innerHTML = `
-    <div class="dot wp">${S.wps.length}</div>
-    <div class="pcontent">
-      <div id="wp-search-${id}" class="siw" style="display:${S.mode==='search'?'block':'none'}">
-        <input class="si" id="wp-input-${id}" placeholder="Punto intermedio…"
-               autocomplete="off"
-               oninput="hsWp(${id}, this.value)"
-               onfocus="ssWp(${id})">
-        <button class="sc" id="wp-clear-${id}" onclick="cpWp(${id})">✕</button>
-        <div class="sugs" id="wp-sugs-${id}"></div>
-      </div>
-      <div id="wp-map-${id}" style="display:${S.mode==='map'?'block':'none'}">
-        <div class="mpd" id="wp-mpd-${id}"><span id="wp-mpt-${id}">Sin fijar</span></div>
-      </div>
-    </div>
-    <button class="wp-remove" onclick="removeWaypoint(${id})" title="Eliminar punto">✕</button>
-  `;
-  container.appendChild(div);
-  renumberWaypoints();
-  if(S.mode === 'map') uMH();
-}
-
-function removeWaypoint(id) {
-  S.wps = S.wps.filter(w => w.id !== id);
-  const row = document.getElementById(`wp-row-${id}`);
-  if(row) row.remove();
-  if(wpMarkers[id]) { wpMarkers[id].remove(); delete wpMarkers[id]; }
-  renumberWaypoints();
-  cr();
-}
-
-function renumberWaypoints() {
-  S.wps.forEach((w, i) => {
-    const row = document.getElementById(`wp-row-${w.id}`);
-    if(row) row.querySelector('.dot').textContent = i + 1;
-  });
-}
-
-function spWp(id, place) {
-  const wp = S.wps.find(w => w.id === id);
-  if(!wp) return;
-  wp.place = place;
-  const n = place.name.split(',')[0];
-
-  if(S.mode === 'search') {
-    const inp = document.getElementById(`wp-input-${id}`);
-    const cl  = document.getElementById(`wp-clear-${id}`);
-    if(inp) inp.value = n;
-    if(cl)  cl.classList.add('on');
+  if(mode !== 'map') { h.classList.remove('on'); return; }
+  const empty = pts.find(p => !p.place);
+  if(empty) {
+    const i = pts.indexOf(empty);
+    const letter = LETTERS[i] || (i+1);
+    h.textContent = `Clic para fijar parada ${letter}`;
+    h.classList.add('on');
   } else {
-    const mpd = document.getElementById(`wp-mpd-${id}`);
-    const mpt = document.getElementById(`wp-mpt-${id}`);
-    if(mpd) mpd.classList.add('set');
-    if(mpt) mpt.textContent = n;
+    h.classList.remove('on');
   }
-
-  if(wpMarkers[id]) wpMarkers[id].remove();
-  wpMarkers[id] = mk(place.lat, place.lng, '●', '#a78bfa').addTo(map);
-  fit(); cr();
 }
 
-function cpWp(id) {
-  const wp = S.wps.find(w => w.id === id);
-  if(wp) wp.place = null;
-  const inp = document.getElementById(`wp-input-${id}`);
-  const cl  = document.getElementById(`wp-clear-${id}`);
-  if(inp) inp.value = '';
-  if(cl)  cl.classList.remove('on');
-  if(wpMarkers[id]) { wpMarkers[id].remove(); delete wpMarkers[id]; }
-  cr();
+// ── Geocoding ─────────────────────────────────────────────────────────────
+function hsP(id, v) {
+  document.getElementById(`pt-cl-${id}`)?.classList.toggle('on', v.length > 0);
+  clearTimeout(ST[id]);
+  if(v.length < 3) { csgP(id); return; }
+  ST[id] = setTimeout(() => dsP(id, v), 320);
 }
-
-// Geocoding para waypoints
-const ST = {};
-function hsWp(id, v) {
-  document.getElementById(`wp-clear-${id}`).classList.toggle('on', v.length > 0);
-  clearTimeout(ST[`wp${id}`]);
-  if(v.length < 3) { csgWp(id); return; }
-  ST[`wp${id}`] = setTimeout(() => dsWp(id, v), 320);
-}
-async function dsWp(id, q) {
+async function dsP(id, q) {
   try {
     const r = await fetch(`${API}/geocode?q=${encodeURIComponent(q)}`);
     const res = await r.json();
-    rsWp(id, res);
-  } catch(e) { csgWp(id); }
+    rsP(id, res);
+  } catch(e) { csgP(id); }
 }
-function rsWp(id, res) {
-  const b = document.getElementById(`wp-sugs-${id}`);
-  if(!res.length) { csgWp(id); return; }
+function rsP(id, res) {
+  const b = document.getElementById(`pt-sugs-${id}`);
+  if(!b || !res.length) { csgP(id); return; }
   b.innerHTML = res.slice(0,5).map(r => {
-    const pts = r.name.split(','), n = pts[0], s = pts.slice(1,3).join(',').trim();
+    const parts = r.name.split(','), n = parts[0], s = parts.slice(1,3).join(',').trim();
     const data = encodeURIComponent(JSON.stringify(r));
-    return `<div class="si-item" onclick="pkWp(${id},'${data}')"><div class="si-n">${n}</div><div class="si-s">${s}</div></div>`;
+    return `<div class="si-item" onclick="pkP(${id},'${data}')"><div class="si-n">${n}</div><div class="si-s">${s}</div></div>`;
   }).join('');
   b.classList.add('open');
 }
-function pkWp(id, data) { spWp(id, JSON.parse(decodeURIComponent(data))); csgWp(id); }
-function ssWp(id) { const b = document.getElementById(`wp-sugs-${id}`); if(b.innerHTML) b.classList.add('open'); }
-function csgWp(id) { document.getElementById(`wp-sugs-${id}`)?.classList.remove('open'); }
-
-// ── Origen / Destino ─────────────────────────────────────────────────────
-function sp(w, pl) {
-  S[w] = pl; upUI(w, pl);
-  if(w==='o') { if(mA) mA.remove(); mA = mk(pl.lat, pl.lng, 'A', '#e8d01c').addTo(map); }
-  else        { if(mB) mB.remove(); mB = mk(pl.lat, pl.lng, 'B', '#e84d1c').addTo(map); }
-  fit(); cr();
-}
-
-function upUI(w, pl) {
-  const n = pl.name.split(',')[0];
-  if(S.mode === 'search') {
-    document.getElementById(w==='o'?'oi':'di').value = n;
-    document.getElementById(w==='o'?'oc':'dc').classList.add('on');
-  } else {
-    document.getElementById(w==='o'?'omd':'dmd').classList.add('set');
-    document.getElementById(w==='o'?'omt':'dmt').textContent = n;
-    if(w==='o') {
-      document.getElementById('omh').style.display = 'none';
-      document.getElementById('dmh').style.display = S.d ? 'none' : 'flex';
-    } else {
-      document.getElementById('dmh').style.display = 'none';
-    }
-  }
-}
-
-function cp(w) {
-  S[w] = null;
-  if(w==='o') { document.getElementById('oi').value=''; document.getElementById('oc').classList.remove('on'); if(mA){mA.remove();mA=null;} }
-  else        { document.getElementById('di').value=''; document.getElementById('dc').classList.remove('on'); if(mB){mB.remove();mB=null;} }
-  cr();
-}
-
-function cr() { document.getElementById('bc').disabled = !(S.o && S.d); }
-
-function fit() {
-  const pts = [S.o, ...S.wps.filter(w=>w.place).map(w=>w.place), S.d].filter(Boolean);
-  if(pts.length >= 2) map.fitBounds(pts.map(p=>[p.lat,p.lng]), {padding:[60,60]});
-  else if(pts.length === 1) map.setView([pts[0].lat, pts[0].lng], 13);
-}
-
-// ── Geocoding origen/destino ──────────────────────────────────────────────
-function hs(w, v) {
-  document.getElementById(w==='o'?'oc':'dc').classList.toggle('on', v.length > 0);
-  clearTimeout(ST[w]);
-  if(v.length < 3) { csg(w); return; }
-  ST[w] = setTimeout(() => ds(w, v), 320);
-}
-async function ds(w, q) {
-  try { const r = await fetch(`${API}/geocode?q=${encodeURIComponent(q)}`), res = await r.json(); rs(w, res); }
-  catch(e) { csg(w); }
-}
-function rs(w, res) {
-  const b = document.getElementById(w==='o'?'osg':'dsg');
-  if(!res.length) { csg(w); return; }
-  b.innerHTML = res.slice(0,5).map(r => {
-    const pts = r.name.split(','), n = pts[0], s = pts.slice(1,3).join(',').trim();
-    const data = encodeURIComponent(JSON.stringify(r));
-    return `<div class="si-item" onclick="pk('${w}','${data}')"><div class="si-n">${n}</div><div class="si-s">${s}</div></div>`;
-  }).join('');
-  b.classList.add('open');
-}
-function pk(w, data) { sp(w, JSON.parse(decodeURIComponent(data))); csg(w); }
-function ss(w) { const b = document.getElementById(w==='o'?'osg':'dsg'); if(b.innerHTML) b.classList.add('open'); }
-function csg(w) { document.getElementById(w==='o'?'osg':'dsg').classList.remove('open'); }
+function pkP(id, data) { setPlace(id, JSON.parse(decodeURIComponent(data))); csgP(id); }
+function ssP(id) { const b = document.getElementById(`pt-sugs-${id}`); if(b?.innerHTML) b.classList.add('open'); }
+function csgP(id) { document.getElementById(`pt-sugs-${id}`)?.classList.remove('open'); }
 document.addEventListener('click', e => {
-  if(!e.target.closest('.siw')) {
-    csg('o'); csg('d');
-    S.wps.forEach(w => csgWp(w.id));
-  }
+  if(!e.target.closest('.siw')) pts.forEach(p => csgP(p.id));
 });
 
 function geo() {
   if(!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(p => sp('o', {lat:p.coords.latitude, lng:p.coords.longitude, name:'Mi ubicación'}));
+  navigator.geolocation.getCurrentPosition(pos => {
+    setPlace(pts[0].id, {lat: pos.coords.latitude, lng: pos.coords.longitude, name: 'Mi ubicación'});
+  });
 }
 
-// ── Calcular ruta ─────────────────────────────────────────────────────────
+// ── Calcular ──────────────────────────────────────────────────────────────
 async function calc() {
-  if(!S.o || !S.d) return;
+  const filled = pts.filter(p => p.place);
+  if(filled.length < 2) return;
   sl('Calculando ruta…');
 
-  const avoidFeatures = [];
-  avoidFeatures.push('highways'); // siempre activo
+  const loop = document.getElementById('loop').checked;
+  const avoidFeatures = ['highways'];
   if(document.getElementById('oun').checked) avoidFeatures.push('unpaved');
 
-  const waypoints = S.wps.filter(w => w.place).map(w => ({lat: w.place.lat, lng: w.place.lng}));
+  // Construir lista de coords: todas las paradas + volver al origen si loop
+  const allPts = [...filled];
+  if(loop) allPts.push(filled[0]);
+
+  const start = allPts[0].place;
+  const end   = allPts[allPts.length - 1].place;
+  const waypoints = allPts.slice(1, -1).map(p => ({lat: p.place.lat, lng: p.place.lng}));
 
   try {
     const r = await fetch(`${API}/route`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        start: {lat: S.o.lat, lng: S.o.lng},
-        end:   {lat: S.d.lat, lng: S.d.lng},
+        start:    {lat: start.lat, lng: start.lng},
+        end:      {lat: end.lat,   lng: end.lng},
         waypoints,
-        avoid_highways: true,
         avoid_features: avoidFeatures,
       })
     });
     if(!r.ok) { alert('Error: ' + (await r.json()).detail); return; }
     const rt = await r.json();
-    S.route = rt;
     drR(rt); drS(rt); drE(rt.geometry); drT(rt.steps);
     document.getElementById('res').classList.add('on');
   } catch(e) {
@@ -515,9 +448,10 @@ async function calc() {
 }
 
 function drR(r) {
-  if(rl) rl.remove();
-  rl = L.polyline(r.geometry.map(p=>[p[1],p[0]]), {color:'#e8d01c', weight:4, opacity:.8, lineJoin:'round'}).addTo(map);
-  map.fitBounds(rl.getBounds(), {padding:[60,60]});
+  if(routeLayer) routeLayer.remove();
+  routeLayer = L.polyline(r.geometry.map(p=>[p[1],p[0]]),
+    {color:'#e8d01c', weight:4, opacity:.8, lineJoin:'round'}).addTo(map);
+  map.fitBounds(routeLayer.getBounds(), {padding:[60,60]});
 }
 function drS(r) {
   document.getElementById('sd').textContent = r.distancia_km;
@@ -525,7 +459,7 @@ function drS(r) {
   document.getElementById('sa').textContent = r.subida_m;
   document.getElementById('sb').textContent = r.bajada_m;
 }
-function hav(a,b,c,d) {
+function hav(a,b,c,d){
   const R=6371,r=Math.PI/180,dl=(c-a)*r,dL=(d-b)*r,
         x=Math.sin(dl/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin(dL/2)**2;
   return R*2*Math.asin(Math.sqrt(x));
@@ -534,17 +468,17 @@ function drE(geo) {
   const W=270,H=54,es=geo.map(p=>p[2]||0),mn=Math.min(...es),mx=Math.max(...es),rng=mx-mn||1;
   let d=0; const ds=[0];
   for(let i=1;i<geo.length;i++) ds.push(d+=hav(geo[i-1][1],geo[i-1][0],geo[i][1],geo[i][0]));
-  const mD=d||1, st=Math.max(1,Math.floor(geo.length/100)), pts=[];
-  for(let i=0;i<geo.length;i+=st) pts.push(i);
-  if(pts[pts.length-1]!==geo.length-1) pts.push(geo.length-1);
+  const mD=d||1, st=Math.max(1,Math.floor(geo.length/100)), pts2=[];
+  for(let i=0;i<geo.length;i+=st) pts2.push(i);
+  if(pts2[pts2.length-1]!==geo.length-1) pts2.push(geo.length-1);
   const tx=i=>(ds[i]/mD)*W, ty=i=>H-2-((es[i]-mn)/rng)*(H-8);
-  const pl=pts.map(i=>`${tx(i).toFixed(1)},${ty(i).toFixed(1)}`).join(' ');
+  const pl=pts2.map(i=>`${tx(i).toFixed(1)},${ty(i).toFixed(1)}`).join(' ');
   document.getElementById('el').setAttribute('points', pl);
   document.getElementById('ef').setAttribute('points', `0,${H} ${pl} ${W},${H}`);
   document.getElementById('emn').textContent = `${Math.round(mn)}m`;
   document.getElementById('emx').textContent = `${Math.round(mx)}m`;
 }
-const IC = {0:'↑',1:'→',2:'←',3:'↑',4:'↓',7:'⭕',12:'→',13:'←'};
+const IC={0:'↑',1:'→',2:'←',3:'↑',4:'↓',7:'⭕',12:'→',13:'←'};
 function drT(steps) {
   document.getElementById('sl').innerHTML = steps.map(s => {
     const d=s.distancia_m||0, ds=d>=1000?`${(d/1e3).toFixed(1)}km`:`${d}m`;
@@ -552,21 +486,31 @@ function drT(steps) {
   }).join('');
 }
 async function xgpx() {
-  if(!S.o||!S.d) return;
+  const filled = pts.filter(p => p.place);
+  if(filled.length < 2) return;
   sl('Generando GPX…');
-  const waypoints = S.wps.filter(w=>w.place).map(w=>({lat:w.place.lat,lng:w.place.lng}));
+  const loop = document.getElementById('loop').checked;
+  const allPts = [...filled];
+  if(loop) allPts.push(filled[0]);
+  const start = allPts[0].place;
+  const end   = allPts[allPts.length-1].place;
+  const waypoints = allPts.slice(1,-1).map(p=>({lat:p.place.lat,lng:p.place.lng}));
   try {
     const r = await fetch(`${API}/export/gpx`, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({start:{lat:S.o.lat,lng:S.o.lng},end:{lat:S.d.lat,lng:S.d.lng},waypoints})
+      body: JSON.stringify({start:{lat:start.lat,lng:start.lng},end:{lat:end.lat,lng:end.lng},waypoints,avoid_features:['highways']})
     });
     if(!r.ok) return;
-    const blob=await r.blob(), url=URL.createObjectURL(blob), a=document.createElement('a');
+    const blob=await r.blob(),url=URL.createObjectURL(blob),a=document.createElement('a');
     a.href=url; a.download='pave.gpx'; a.click(); URL.revokeObjectURL(url);
   } finally { hl(); }
 }
 function sl(m){document.getElementById('lm').textContent=m;document.getElementById('ld').classList.add('on');}
 function hl(){document.getElementById('ld').classList.remove('on');}
+
+// ── Arrancar con 2 paradas por defecto ────────────────────────────────────
+pts = [{id:++ptCounter,place:null},{id:++ptCounter,place:null}];
+renderPoints();
 
 fetch(`${API}/health`).catch(()=>{
   document.getElementById('wake-banner').classList.add('on');
@@ -575,7 +519,7 @@ fetch(`${API}/health`).catch(()=>{
       document.getElementById('wake-banner').classList.remove('on');
       clearInterval(check);
     }).catch(()=>{});
-  }, 3000);
+  },3000);
 });
 </script>
 </body>
