@@ -52,9 +52,9 @@ async def route(req: RouteRequest):
         coords.append([wp.lng, wp.lat])
     coords.append([req.end.lng, req.end.lat])
 
-    # Autopistas siempre evitadas + opciones del usuario
-    avoid = list(set(req.avoid_features + ["highways"]))
-    opts = {"avoid_features": avoid}
+    # cycling-road ya evita autopistas por defecto, no hace falta pedirlo
+    avoid = [f for f in req.avoid_features if f != "highways"]
+    opts = {"avoid_features": avoid} if avoid else {}
 
     async with httpx.AsyncClient(timeout=30) as c:
         r = await c.post(
