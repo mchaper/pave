@@ -27,6 +27,7 @@ class RouteRequest(BaseModel):
     end: Coord
     waypoints: list[Coord] = []
     avoid_features: list[str] = []
+    steepness_difficulty: int = 2  # 0=Novato 1=Moderado 2=Amateur 3=Pro
 
 
 @app.get("/geocode")
@@ -52,9 +53,14 @@ async def route(req: RouteRequest):
         coords.append([wp.lng, wp.lat])
     coords.append([req.end.lng, req.end.lat])
 
-    # cycling-road ya evita autopistas por defecto, no hace falta pedirlo
-    avoid = [f for f in req.avoid_features if f != "highways"]
-    opts = {"avoid_features": avoid} if avoid else {}
+    # Solo valores válidos para cycling-road: ferries, fords, steps
+    avoid = [f for f in req.avoid_features if f in ("ferries", "fords", "steps")]
+    opts = {}
+    if avoid:
+        opts["avoid_features"] = avoid
+    opts["profile_params"] = {
+        "weightings": {"steepness_difficulty": req.steepness_difficulty}
+    }
 
     async with httpx.AsyncClient(timeout=30) as c:
         r = await c.post(
