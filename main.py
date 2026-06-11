@@ -52,9 +52,9 @@ async def route(req: RouteRequest):
         coords.append([wp.lng, wp.lat])
     coords.append([req.end.lng, req.end.lat])
 
-    # Autopistas siempre evitadas para ciclismo de carretera
+    # Autopistas siempre evitadas + opciones del usuario
     avoid = list(set(req.avoid_features + ["highways"]))
-    opts = {"avoid_features": avoid} if avoid else {}
+    opts = {"avoid_features": avoid}
 
     async with httpx.AsyncClient(timeout=30) as c:
         r = await c.post(
@@ -64,6 +64,13 @@ async def route(req: RouteRequest):
         )
         if r.status_code == 403:
             raise HTTPException(403, "ORS API key inválida")
+        if r.status_code == 400:
+            # Intentar extraer el mensaje de ORS
+            try:
+                msg = r.json().get("error", {}).get("message", "Coordenadas inválidas o ruta no encontrada")
+            except Exception:
+                msg = "No se encontró ruta entre esos puntos"
+            raise HTTPException(400, msg)
         r.raise_for_status()
 
     feat  = r.json()["features"][0]
