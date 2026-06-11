@@ -1,20 +1,18 @@
 """
 Pavé — Road Cycling Route Planner
-Backend: FastAPI + OpenRouteService
 """
-import os, math
+import os
 from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response, FileResponse
+from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import httpx, uvicorn
 
-# API key desde variable de entorno (Railway/Render) o hardcoded para desarrollo local
 ORS_API_KEY = os.getenv("ORS_API_KEY")
 if not ORS_API_KEY:
-    raise RuntimeError("No env varibale ORS_API_KEY")
+    raise RuntimeError("Falta la variable de entorno ORS_API_KEY")
 
 app = FastAPI(title="Pavé API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -28,7 +26,7 @@ class RouteRequest(BaseModel):
     start: Coord
     end: Coord
     waypoints: list[Coord] = []
-    avoid_highways: bool = False
+    avoid_features: list[str] = []
 
 
 @app.get("/geocode")
@@ -36,11 +34,14 @@ async def geocode(q: str):
     async with httpx.AsyncClient(timeout=10) as c:
         r = await c.get(
             "https://nominatim.openstreetmap.org/search",
-            params={"q": q, "format": "json", "limit": 5},
-            headers={"User-Agent": "Pave-CyclingApp/1.0 (https://pave.onrender.com)",
-                        "Accept-Language": "es,en",
-                        "Referer": "https://pave.onrender.com"}
+            params={"q": q, "format": "json", "limit": 5, "addressdetails": 1},
+            headers={
+                "User-Agent": "Pave-CyclingApp/1.0 (https://pave.onrender.com)",
+                "Accept-Language": "es,en",
+                "Referer": "https://pave.onrender.com"
+            }
         )
+        r.raise_for_status()
     return [{"name": i["display_name"], "lat": float(i["lat"]), "lng": float(i["lon"])} for i in r.json()]
 
 
@@ -51,7 +52,9 @@ async def route(req: RouteRequest):
         coords.append([wp.lng, wp.lat])
     coords.append([req.end.lng, req.end.lat])
 
-    opts = {"avoid_features": ["highways"]} if req.avoid_highways else {}
+    # Autopistas siempre evitadas para ciclismo de carretera
+    avoid = list(set(req.avoid_features + ["highways"]))
+    opts = {"avoid_features": avoid} if avoid else {}
 
     async with httpx.AsyncClient(timeout=30) as c:
         r = await c.post(
@@ -122,7 +125,6 @@ async def health():
     return {"status": "ok"}
 
 
-# Servir el frontend estático desde /frontend
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 
