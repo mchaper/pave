@@ -37,7 +37,9 @@ async def geocode(q: str):
         r = await c.get(
             "https://nominatim.openstreetmap.org/search",
             params={"q": q, "format": "json", "limit": 5},
-            headers={"User-Agent": "Pavé/1.0"}
+            headers={"User-Agent": "Pave-CyclingApp/1.0 (https://pave.onrender.com)",
+                        "Accept-Language": "es,en",
+                        "Referer": "https://pave.onrender.com"}
         )
     return [{"name": i["display_name"], "lat": float(i["lat"]), "lng": float(i["lon"])} for i in r.json()]
 
