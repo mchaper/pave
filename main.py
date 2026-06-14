@@ -1,5 +1,6 @@
 """
 Pavé — Road Cycling Route Planner
+Backend: FastAPI + Brouter (fastbike) + ORS fallback
 """
 import os
 from datetime import datetime
@@ -11,8 +12,6 @@ from pydantic import BaseModel
 import httpx, uvicorn
 
 ORS_API_KEY = os.getenv("ORS_API_KEY")
-if not ORS_API_KEY:
-    raise RuntimeError("Falta la variable de entorno ORS_API_KEY")
 
 app = FastAPI(title="Pavé API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -26,9 +25,14 @@ class RouteRequest(BaseModel):
     start: Coord
     end: Coord
     waypoints: list[Coord] = []
-    avoid_features: list[str] = []
-    steepness_difficulty: int = 2  # 0=Novato 1=Moderado 2=Amateur 3=Pro
-    profile: str = 'cycling-road'
+    loop: bool = False
+
+
+def build_lonlats(req: RouteRequest) -> str:
+    pts = [req.start] + req.waypoints + [req.end]
+    if req.loop:
+        pts.append(req.start)
+    return '|'.join(f"{p.lng},{p.lat}" for p in pts)
 
 
 @app.get("/geocode")
@@ -40,7 +44,6 @@ async def geocode(q: str):
             headers={
                 "User-Agent": "Pave-CyclingApp/1.0 (https://pave.onrender.com)",
                 "Accept-Language": "es,en",
-                "Referer": "https://pave.onrender.com"
             }
         )
         r.raise_for_status()
@@ -49,42 +52,44 @@ async def geocode(q: str):
 
 @app.post("/route")
 async def route(req: RouteRequest):
+    lonlats = build_lonlats(req)
+
+    # ── Brouter (motor principal) ─────────────────────────────────────
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(
+                "https://brouter.de/brouter",
+                params={
+                    "lonlats":        lonlats,
+                    "profile":        "fastbike",
+                    "alternativeidx": "0",
+                    "format":         "geojson"
+                }
+            )
+        if r.status_code == 200:
+            return _parse_brouter(r.json())
+    except Exception:
+        pass  # fallback a ORS
+
+    # ── ORS fallback ──────────────────────────────────────────────────
+    if not ORS_API_KEY:
+        raise HTTPException(503, "Brouter no disponible y ORS_API_KEY no configurada")
+
     coords = [[req.start.lng, req.start.lat]]
     for wp in req.waypoints:
         coords.append([wp.lng, wp.lat])
     coords.append([req.end.lng, req.end.lat])
-
-    # Validar perfil
-    valid_profiles = ('cycling-road', 'cycling-mountain', 'cycling-electric', 'driving-car')
-    if req.profile not in valid_profiles:
-        raise HTTPException(400, f'Perfil inválido: {req.profile}')
-
-    # Solo valores válidos para cycling-*: ferries, fords, steps
-    avoid = [f for f in req.avoid_features if f in ("ferries", "fords", "steps")]
-    opts = {}
-    if avoid:
-        opts["avoid_features"] = avoid
-    # profile_params solo para perfiles ciclistas
-    if req.profile.startswith("cycling"):
-        opts["profile_params"] = {
-            "weightings": {"steepness_difficulty": req.steepness_difficulty}
-        }
+    if req.loop:
+        coords.append([req.start.lng, req.start.lat])
 
     async with httpx.AsyncClient(timeout=30) as c:
         r = await c.post(
-            f"https://api.heigit.org/openrouteservice/v2/directions/{req.profile}/geojson",
+            "https://api.heigit.org/openrouteservice/v2/directions/cycling-road/geojson",
             headers={"Authorization": ORS_API_KEY, "Content-Type": "application/json"},
-            json={"coordinates": coords, "instructions": True, "elevation": True, "options": opts}
+            json={"coordinates": coords, "instructions": True, "elevation": True}
         )
         if r.status_code == 403:
             raise HTTPException(403, "ORS API key inválida")
-        if r.status_code == 400:
-            # Intentar extraer el mensaje de ORS
-            try:
-                msg = r.json().get("error", {}).get("message", "Coordenadas inválidas o ruta no encontrada")
-            except Exception:
-                msg = "No se encontró ruta entre esos puntos"
-            raise HTTPException(400, msg)
         r.raise_for_status()
 
     feat  = r.json()["features"][0]
@@ -115,22 +120,78 @@ async def route(req: RouteRequest):
         "bajada_m":     round(baj),
         "geometry":     geo,
         "steps":        steps,
+        "motor":        "ors"
+    }
+
+
+def _parse_brouter(data: dict) -> dict:
+    feat  = data["features"][0]
+    props = feat["properties"]
+    geo   = feat["geometry"]["coordinates"]  # [lng, lat, ele]
+
+    km  = round(int(props.get("track-length", 0)) / 1000, 2)
+    min_= round(int(props.get("total-time",   0)) / 60)
+    asc = round(float(props.get("filtered ascend", 0)))
+    dsc = round(float(props.get("filtered descend", 0)))
+
+    # Mensajes de giro desde los waypoints de Brouter
+    steps = []
+    for msg in props.get("messages", []):
+        if len(msg) >= 4:
+            steps.append({
+                "texto":       msg[3] if len(msg) > 3 else "",
+                "distancia_m": int(msg[1]) if msg[1].isdigit() else 0,
+                "type":        0,
+            })
+
+    return {
+        "distancia_km": km,
+        "duracion_min": min_,
+        "subida_m":     asc,
+        "bajada_m":     dsc,
+        "geometry":     geo,
+        "steps":        steps,
+        "motor":        "brouter"
     }
 
 
 @app.post("/export/gpx")
 async def export_gpx(req: RouteRequest):
-    r = await route(req)
+    lonlats = build_lonlats(req)
+
+    # Brouter devuelve GPX directamente
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(
+                "https://brouter.de/brouter",
+                params={
+                    "lonlats":        lonlats,
+                    "profile":        "fastbike",
+                    "alternativeidx": "0",
+                    "format":         "gpx"
+                }
+            )
+        if r.status_code == 200:
+            return Response(
+                content=r.content,
+                media_type="application/gpx+xml",
+                headers={"Content-Disposition": 'attachment; filename="pave.gpx"'}
+            )
+    except Exception:
+        pass
+
+    # Fallback: construir GPX desde la ruta calculada
+    rt = await route(req)
     now = datetime.utcnow().isoformat() + "Z"
     pts = "".join(
         f'<trkpt lat="{p[1]:.6f}" lon="{p[0]:.6f}"><ele>{p[2] if len(p)>2 else 0:.1f}</ele></trkpt>'
-        for p in r["geometry"]
+        for p in rt["geometry"]
     )
     gpx = (
         '<?xml version="1.0" encoding="UTF-8"?>'
         '<gpx version="1.1" creator="Pavé">'
         f'<metadata><name>Pavé</name><time>{now}</time>'
-        f'<desc>{r["distancia_km"]} km — subida {r["subida_m"]} m</desc></metadata>'
+        f'<desc>{rt["distancia_km"]} km — subida {rt["subida_m"]} m</desc></metadata>'
         f'<trk><name>Pavé</name><type>cycling</type><trkseg>{pts}</trkseg></trk>'
         '</gpx>'
     )
