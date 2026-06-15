@@ -26,6 +26,7 @@ class RouteRequest(BaseModel):
     end: Coord
     waypoints: list[Coord] = []
     loop: bool = False
+    profile: str = 'fastbike'
 
 
 def build_lonlats(req: RouteRequest) -> str:
@@ -52,6 +53,10 @@ async def geocode(q: str):
 
 @app.post("/route")
 async def route(req: RouteRequest):
+    valid_profiles = ('fastbike', 'trekking', 'MTB', 'safety', 'shortest', 'fastbike-asia')
+    if req.profile not in valid_profiles:
+        raise HTTPException(400, f"Perfil inválido: {req.profile}")
+
     lonlats = build_lonlats(req)
 
     # ── Brouter (motor principal) ─────────────────────────────────────
@@ -61,7 +66,7 @@ async def route(req: RouteRequest):
                 "https://brouter.de/brouter",
                 params={
                     "lonlats":        lonlats,
-                    "profile":        "fastbike",
+                    "profile":        req.profile,
                     "alternativeidx": "0",
                     "format":         "geojson"
                 }
@@ -157,6 +162,10 @@ def _parse_brouter(data: dict) -> dict:
 
 @app.post("/export/gpx")
 async def export_gpx(req: RouteRequest):
+    valid_profiles = ('fastbike', 'trekking', 'MTB', 'safety', 'shortest', 'fastbike-asia')
+    if req.profile not in valid_profiles:
+        raise HTTPException(400, f"Perfil inválido: {req.profile}")
+
     lonlats = build_lonlats(req)
 
     # Brouter devuelve GPX directamente
@@ -166,7 +175,7 @@ async def export_gpx(req: RouteRequest):
                 "https://brouter.de/brouter",
                 params={
                     "lonlats":        lonlats,
-                    "profile":        "fastbike",
+                    "profile":        req.profile,
                     "alternativeidx": "0",
                     "format":         "gpx"
                 }
