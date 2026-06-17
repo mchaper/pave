@@ -485,6 +485,7 @@ async function calc() {
     });
     if(!r.ok) { alert('Error: '+(await r.json()).detail); return; }
     const rt = await r.json();
+    window.lastRoute = rt;
     drR(rt); drS(rt); drE(rt.geometry); drT(rt.steps);
     document.getElementById('res').classList.add('on');
   } catch(e) {
@@ -546,14 +547,13 @@ function hl(){document.getElementById('ld').classList.remove('on');}
 
 // ── Ir a análisis ────────────────────────────────────────────────────────────
 function goAnalisis() {
-  if(!S.route) return;
-  // Guardar geometría en localStorage para que analisis.html la lea
+  if(!window.lastRoute) return;
   localStorage.setItem('pave_route', JSON.stringify({
-    geometry: S.route.geometry,
-    distancia_km: S.route.distancia_km,
-    duracion_min: S.route.duracion_min,
-    subida_m: S.route.subida_m,
-    bajada_m: S.route.bajada_m,
+    geometry: window.lastRoute.geometry,
+    distancia_km: window.lastRoute.distancia_km,
+    duracion_min: window.lastRoute.duracion_min,
+    subida_m: window.lastRoute.subida_m,
+    bajada_m: window.lastRoute.bajada_m,
   }));
   window.location.href = '/analisis';
 }
