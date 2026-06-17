@@ -195,6 +195,7 @@ header .sp{flex:1}
             <div class="erange"><span id="emn">—</span><span id="emx">—</span></div>
           </div>
           <button class="bgpx" onclick="xgpx()">⬇ Descargar GPX</button>
+          <button class="bgpx" style="margin-top:6px;border-color:rgba(232,208,28,.3);color:var(--y)" onclick="goAnalisis()">📊 Analizar ruta</button>
         </div>
         <div class="sec"><div class="slabel">Indicaciones</div><div class="stl" id="sl"></div></div>
       </div>
@@ -542,6 +543,20 @@ async function xgpx() {
 }
 function sl(m){document.getElementById('lm').textContent=m;document.getElementById('ld').classList.add('on');}
 function hl(){document.getElementById('ld').classList.remove('on');}
+
+// ── Ir a análisis ────────────────────────────────────────────────────────────
+function goAnalisis() {
+  if(!S.route) return;
+  // Guardar geometría en localStorage para que analisis.html la lea
+  localStorage.setItem('pave_route', JSON.stringify({
+    geometry: S.route.geometry,
+    distancia_km: S.route.distancia_km,
+    duracion_min: S.route.duracion_min,
+    subida_m: S.route.subida_m,
+    bajada_m: S.route.bajada_m,
+  }));
+  window.location.href = '/analisis';
+}
 
 // ── Arrancar ──────────────────────────────────────────────────────────────
 pts=[{id:++ptCounter,place:null},{id:++ptCounter,place:null}];
