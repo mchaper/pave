@@ -152,7 +152,21 @@ header .sp{flex:1}
           </label>
         </div>
 
+        <div style="margin-top:10px">
+          <div class="slabel" style="margin-bottom:6px">Perfil</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <button class="pill on" id="prof-fastbike" onclick="setProfile('fastbike')">🚴 Carretera</button>
+            <button class="pill" id="prof-trekking"    onclick="setProfile('trekking')">🧳 Gravel</button>
+            <button class="pill" id="prof-MTB"         onclick="setProfile('MTB')">⛰ MTB</button>
+            <button class="pill" id="prof-safety"      onclick="setProfile('safety')">🛡 Segura</button>
+            <button class="pill" id="prof-shortest"    onclick="setProfile('shortest')">📏 Corta</button>
+          </div>
+          <div style="font-size:10px;color:var(--m);margin-top:5px" id="prof-hint">Prioriza asfalto y carreteras principales</div>
+        </div>
+
         <button class="btn-addpt" onclick="addPoint()">+ Añadir parada</button>
+
+
       </div>
 
 
@@ -426,6 +440,26 @@ function geo() {
   );
 }
 
+
+
+// ── Perfil ───────────────────────────────────────────────────────────────────
+let currentProfile = 'fastbike';
+const PROF_HINTS = {
+  'fastbike':  'Prioriza asfalto y carreteras principales',
+  'trekking':  'Gravel y touring, acepta más variedad de superficies',
+  'MTB':       'Mountain bike, caminos y senderos',
+  'safety':    'Evita carreteras con mucho tráfico',
+  'shortest':  'La ruta más corta sin importar el tipo de vía',
+};
+function setProfile(p) {
+  currentProfile = p;
+  ['fastbike','trekking','MTB','safety','shortest'].forEach(k => {
+    document.getElementById(`prof-${k}`)?.classList.remove('on');
+  });
+  document.getElementById(`prof-${p}`)?.classList.add('on');
+  document.getElementById('prof-hint').textContent = PROF_HINTS[p] || '';
+}
+
 // ── Calcular ──────────────────────────────────────────────────────────────
 async function calc() {
   const filled = pts.filter(p=>p.place);
@@ -446,7 +480,7 @@ async function calc() {
   try {
     const r = await fetch(`${API}/route`, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({start:{lat:start.lat,lng:start.lng}, end:{lat:end.lat,lng:end.lng}, waypoints, avoid_features:avoidFeatures, steepness_difficulty:fitness})
+      body: JSON.stringify({start:{lat:start.lat,lng:start.lng}, end:{lat:end.lat,lng:end.lng}, waypoints, loop:document.getElementById('loop').checked, profile:currentProfile})
     });
     if(!r.ok) { alert('Error: '+(await r.json()).detail); return; }
     const rt = await r.json();
