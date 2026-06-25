@@ -224,14 +224,15 @@ let sortable = null;
 
 // ── Capas de mapa ─────────────────────────────────────────────────────────
 const layers = {
-  'Oscuro':    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {attribution:'© OSM © CARTO', maxZoom:19}),
-  'Claro':     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {attribution:'© OSM © CARTO', maxZoom:19}),
-  'Satélite':  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution:'© Esri', maxZoom:19}),
-  'Carretera': L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OSM', maxZoom:19}),
+  'Satélite':    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution:'© Esri', maxZoom:19}),
+  'Topo IGN':    L.tileLayer('https://www.ign.es/wmts/mapa-raster?request=getTile&service=WMTS&VERSION=1.0.0&LAYER=MTN&TILEMATRIXSET=GoogleMapsCompatible&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/jpeg', {attribution:'© IGN España', maxZoom:17}),
+  'Stadia':      L.tileLayer('https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png', {attribution:'© Stadia © OSM', maxZoom:19}),
+  'Carretera':   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OSM', maxZoom:19}),
+  'Topo Mundo':  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {attribution:'© Esri', maxZoom:19}),
 };
 
 const map = L.map('map').setView([42.2, -8.7], 8);
-layers['Oscuro'].addTo(map);
+layers['Stadia'].addTo(map);
 L.control.layers(layers, {}, {position:'topright'}).addTo(map);
 
 // ── Marcadores ────────────────────────────────────────────────────────────
