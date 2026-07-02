@@ -216,6 +216,12 @@ async def health():
     return {"status": "ok"}
 
 
+@app.get("/analisis")
+async def analisis():
+    from fastapi.responses import FileResponse
+    return FileResponse("frontend/analisis.html")
+
+
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 

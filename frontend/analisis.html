@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pavé — Análisis de Ruta</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+:root{--bg:#0c0e14;--s:#13161f;--s2:#1c2030;--s3:#252a3a;--y:#e8d01c;--yd:rgba(232,208,28,0.12);--r:#e84d1c;--t:#eeeae0;--m:#6b6f82;--b:rgba(255,255,255,0.07);--rad:8px;
+  --g1:#22c55e;--g2:#eab308;--g3:#f97316;--g4:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,sans-serif;background:var(--bg);color:var(--t);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── Header ── */
+header{display:flex;align-items:center;gap:16px;padding:0 16px;height:48px;background:var(--s);border-bottom:1px solid var(--b);flex-shrink:0}
+.logo{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--y);text-decoration:none}
+.logo-tag{font-size:10px;color:var(--m)}
+header .sp{flex:1}
+.nav{display:flex;gap:4px}
+.nav a{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--b);color:var(--m);text-decoration:none;transition:.2s}
+.nav a:hover{border-color:var(--y);color:var(--y)}
+.nav a.on{background:var(--yd);border-color:var(--y);color:var(--y)}
+
+/* ── Layout ── */
+.app{display:flex;flex:1;overflow:hidden}
+.panel{width:340px;flex-shrink:0;background:var(--s);border-right:1px solid var(--b);display:flex;flex-direction:column;overflow:hidden}
+.map-wrap{flex:1;position:relative}
+#map{width:100%;height:100%}
+
+/* ── Panel scroll ── */
+.pscroll{flex:1;overflow-y:auto;padding-bottom:16px}
+.pscroll::-webkit-scrollbar{width:3px}
+.pscroll::-webkit-scrollbar-thumb{background:var(--s3);border-radius:2px}
+.sec{padding:14px 16px;border-bottom:1px solid var(--b)}
+.slabel{font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--m);margin-bottom:10px}
+
+/* ── Upload zone ── */
+.upload-zone{border:2px dashed var(--b);border-radius:var(--rad);padding:24px;text-align:center;cursor:pointer;transition:.2s;position:relative}
+.upload-zone:hover{border-color:var(--y);background:var(--yd)}
+.upload-zone.drag{border-color:var(--y);background:var(--yd)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:28px;margin-bottom:8px}
+.upload-title{font-size:13px;color:var(--t);margin-bottom:4px}
+.upload-sub{font-size:11px;color:var(--m)}
+
+/* ── Stats grid ── */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stat{background:var(--s2);border:1px solid var(--b);border-radius:var(--rad);padding:8px 10px;text-align:center}
+.sv{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;line-height:1}
+.sv.y{color:var(--y)}.sv.r{color:var(--r)}.sv.g{color:var(--g1)}
+.su{font-size:10px;color:var(--m);margin-top:2px;letter-spacing:.5px}
+
+/* ── Elevation chart ── */
+.elev-wrap{margin-top:4px;position:relative}
+#elev-canvas{width:100%;display:block;cursor:crosshair}
+.elev-tooltip{position:absolute;background:var(--s);border:1px solid var(--b);border-radius:6px;padding:6px 10px;font-size:11px;pointer-events:none;display:none;z-index:10;white-space:nowrap}
+.elev-cursor{position:absolute;top:0;bottom:0;width:1px;background:var(--y);pointer-events:none;display:none}
+
+/* ── Rampas ── */
+.ramp-item{background:var(--s2);border:1px solid var(--b);border-radius:var(--rad);padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:.2s}
+.ramp-item:hover{border-color:var(--y)}
+.ramp-item.active{border-color:var(--y);background:var(--yd)}
+.ramp-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.ramp-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;flex-shrink:0}
+.ramp-name{font-size:12px;font-weight:500;color:var(--t);flex:1}
+.ramp-badge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600}
+.ramp-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.ramp-stat{text-align:center}
+.ramp-stat-val{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700}
+.ramp-stat-lbl{font-size:9px;color:var(--m);letter-spacing:.5px;text-transform:uppercase}
+
+/* ── Mini chart per ramp ── */
+.ramp-chart{margin-top:8px}
+.ramp-chart canvas{width:100%;display:block}
+
+/* ── Grade bar ── */
+.grade-bar{height:4px;border-radius:2px;margin-top:6px;background:var(--s3);overflow:hidden}
+.grade-fill{height:100%;border-radius:2px;transition:width .3s}
+
+/* ── Loading ── */
+.loading{display:none;position:absolute;inset:0;background:rgba(12,14,20,.8);z-index:400;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.loading.on{display:flex}
+.spin{width:36px;height:36px;border-radius:50%;border:3px solid var(--s3);border-top-color:var(--y);animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.lmsg{font-size:12px;color:var(--m)}
+
+/* ── Empty state ── */
+.empty{padding:32px 16px;text-align:center;color:var(--m);font-size:13px}
+.empty-icon{font-size:40px;margin-bottom:12px}
+#ramps-section{display:none}
+#stats-section{display:none}
+</style>
+</head>
+<body>
+<header>
+  <a href="/"><div><div class="logo">Pavé</div><div class="logo-tag" style="margin-top:-2px">Rutas bici de carretera</div></div></a>
+  <div class="sp"></div>
+  <nav class="nav">
+    <a href="/">🗺 Planificar</a>
+    <a href="/analisis" class="on">📊 Analizar</a>
+  </nav>
+</header>
+
+<div class="app">
+  <div class="panel">
+    <div class="pscroll">
+
+      <!-- Upload GPX -->
+      <div class="sec">
+        <div class="slabel">Importar ruta</div>
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" accept=".gpx" id="gpx-input" onchange="loadGPX(this)">
+          <div class="upload-icon">📂</div>
+          <div class="upload-title">Arrastra un fichero GPX</div>
+          <div class="upload-sub">o haz clic para seleccionar</div>
+        </div>
+      </div>
+
+      <!-- Stats globales -->
+      <div class="sec" id="stats-section">
+        <div class="slabel">Resumen</div>
+        <div class="sgrid">
+          <div class="stat"><div class="sv y" id="s-dist">—</div><div class="su">KM</div></div>
+          <div class="stat"><div class="sv" id="s-time">—</div><div class="su">MIN</div></div>
+          <div class="stat"><div class="sv r" id="s-asc">—</div><div class="su">M SUBIDA</div></div>
+          <div class="stat"><div class="sv" id="s-desc">—</div><div class="su">M BAJADA</div></div>
+        </div>
+
+        <!-- Perfil de elevación interactivo -->
+        <div class="elev-wrap" style="margin-top:12px">
+          <div class="slabel">Perfil de elevación</div>
+          <div style="position:relative">
+            <canvas id="elev-canvas" height="80"></canvas>
+            <div class="elev-cursor" id="elev-cursor"></div>
+            <div class="elev-tooltip" id="elev-tooltip"></div>
+          </div>
+          <!-- Leyenda de pendientes -->
+          <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+            <span style="font-size:10px;color:var(--g1)">■ &lt;3%</span>
+            <span style="font-size:10px;color:var(--g2)">■ 3-7%</span>
+            <span style="font-size:10px;color:var(--g3)">■ 7-11%</span>
+            <span style="font-size:10px;color:var(--r)">■ &gt;11%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rampas -->
+      <div class="sec" id="ramps-section">
+        <div class="slabel" id="ramps-title">Rampas detectadas</div>
+        <div id="ramps-list"></div>
+      </div>
+
+      <!-- Empty -->
+      <div class="empty" id="empty-state">
+        <div class="empty-icon">🚴</div>
+        <div>Sube un fichero GPX<br>o calcula una ruta en el planificador</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="map-wrap">
+    <div id="map"></div>
+    <div class="loading" id="loading">
+      <div class="spin"></div>
+      <div class="lmsg">Analizando ruta…</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Mapa ──────────────────────────────────────────────────────────────
+const map = L.map('map').setView([42.2, -8.7], 9);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  {attribution:'© OSM © CARTO', maxZoom:19}).addTo(map);
+
+let routeLayer = null;
+let rampLayers = [];
+let cursorMarker = null;
+
+// ── Colores por pendiente ──────────────────────────────────────────────
+function gradeColor(pct) {
+  if(pct < 3)  return '#22c55e';
+  if(pct < 7)  return '#eab308';
+  if(pct < 11) return '#f97316';
+  return '#ef4444';
+}
+
+function gradeLabel(pct) {
+  if(pct < 3)  return {txt:'Cat. 4', bg:'#22c55e22', col:'#22c55e'};
+  if(pct < 7)  return {txt:'Cat. 3', bg:'#eab30822', col:'#eab308'};
+  if(pct < 11) return {txt:'Cat. 2', bg:'#f9731622', col:'#f97316'};
+  return             {txt:'Cat. 1', bg:'#ef444422', col:'#ef4444'};
+}
+
+// ── Parsear GPX ───────────────────────────────────────────────────────
+function parseGPX(text) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(text, 'application/xml');
+  const pts = [...doc.querySelectorAll('trkpt')].map(p => ({
+    lat: parseFloat(p.getAttribute('lat')),
+    lng: parseFloat(p.getAttribute('lon')),
+    ele: parseFloat(p.querySelector('ele')?.textContent || 0)
+  }));
+  return pts;
+}
+
+// ── Haversine ─────────────────────────────────────────────────────────
+function hav(a, b, c, d) {
+  const R=6371, r=Math.PI/180, dl=(c-a)*r, dL=(d-b)*r,
+        x=Math.sin(dl/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin(dL/2)**2;
+  return R*2*Math.asin(Math.sqrt(x));
+}
+
+// ── Calcular perfil ───────────────────────────────────────────────────
+function calcProfile(pts) {
+  let dist = 0;
+  const profile = [{d:0, ele:pts[0].ele, lat:pts[0].lat, lng:pts[0].lng, grade:0}];
+  for(let i=1; i<pts.length; i++) {
+    const d = hav(pts[i-1].lat, pts[i-1].lng, pts[i].lat, pts[i].lng) * 1000; // metros
+    dist += d;
+    const dEle = pts[i].ele - pts[i-1].ele;
+    const grade = d > 0 ? (dEle / d) * 100 : 0;
+    profile.push({d: dist/1000, ele: pts[i].ele, lat: pts[i].lat, lng: pts[i].lng, grade});
+  }
+  return profile;
+}
+
+// ── Detectar rampas ───────────────────────────────────────────────────
+function detectRamps(profile, minGrade=3, minDist=300, smoothWindow=5) {
+  // Suavizar gradientes
+  const smoothed = profile.map((p, i) => {
+    const w = profile.slice(Math.max(0,i-smoothWindow), i+smoothWindow+1);
+    return {...p, grade: w.reduce((s,x)=>s+x.grade,0)/w.length};
+  });
+
+  const ramps = [];
+  let inRamp = false;
+  let rampStart = null;
+
+  for(let i=0; i<smoothed.length; i++) {
+    const g = smoothed[i].grade;
+    if(!inRamp && g >= minGrade) {
+      inRamp = true;
+      rampStart = i;
+    } else if(inRamp && (g < minGrade || i === smoothed.length-1)) {
+      const start = profile[rampStart];
+      const end   = profile[i];
+      const distM = (end.d - start.d) * 1000;
+      if(distM >= minDist) {
+        const dEle   = end.ele - start.ele;
+        const avgGrd = dEle / distM * 100;
+        const maxGrd = Math.max(...profile.slice(rampStart, i).map(p=>p.grade));
+        if(avgGrd > 0) {
+          ramps.push({
+            idx:    ramps.length + 1,
+            startI: rampStart,
+            endI:   i,
+            startD: start.d,
+            endD:   end.d,
+            distKm: Math.round(distM) / 1000,
+            startEle: start.ele,
+            endEle:   end.ele,
+            dEle:     Math.round(dEle),
+            avgGrade: Math.round(avgGrd * 10) / 10,
+            maxGrade: Math.round(maxGrd * 10) / 10,
+            points:   profile.slice(rampStart, i+1),
+            startLat: start.lat, startLng: start.lng,
+            endLat:   end.lat,   endLng:   end.lng,
+          });
+        }
+      }
+      inRamp = false;
+      rampStart = null;
+    }
+  }
+  return ramps.sort((a,b) => b.avgGrade - a.avgGrade);
+}
+
+// ── Dibujar ruta en mapa con colores de pendiente ─────────────────────
+function drawColoredRoute(profile) {
+  if(routeLayer) { routeLayer.remove(); routeLayer = null; }
+  rampLayers.forEach(l => l.remove());
+  rampLayers = [];
+
+  const bounds = [];
+  for(let i=1; i<profile.length; i++) {
+    const p1 = profile[i-1], p2 = profile[i];
+    const grade = Math.abs((p2.ele-p1.ele)/((p2.d-p1.d)*1000+0.001)*100);
+    const color = gradeColor(grade);
+    const line = L.polyline([[p1.lat,p1.lng],[p2.lat,p2.lng]], {
+      color, weight:4, opacity:.9, lineJoin:'round'
+    }).addTo(map);
+    rampLayers.push(line);
+    bounds.push([p1.lat,p1.lng]);
+  }
+  if(bounds.length) map.fitBounds(bounds, {padding:[40,40]});
+}
+
+// ── Dibujar perfil elevación ──────────────────────────────────────────
+let profileData = [];
+function drawElevation(profile) {
+  profileData = profile;
+  const canvas = document.getElementById('elev-canvas');
+  const W = canvas.offsetWidth || 290;
+  const H = 80;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+
+  const eles = profile.map(p=>p.ele);
+  const mn = Math.min(...eles), mx = Math.max(...eles), rng = mx-mn||1;
+  const maxD = profile[profile.length-1].d || 1;
+  const tx = d => (d/maxD)*W;
+  const ty = e => H-4-((e-mn)/rng)*(H-12);
+
+  // Fondo degradado por pendiente
+  for(let i=1; i<profile.length; i++) {
+    const p1=profile[i-1], p2=profile[i];
+    const grade = Math.abs((p2.ele-p1.ele)/((p2.d-p1.d)*1000+0.001)*100);
+    const x1=tx(p1.d), x2=tx(p2.d);
+    const grad = ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0, gradeColor(grade)+'55');
+    grad.addColorStop(1, gradeColor(grade)+'08');
+    ctx.beginPath();
+    ctx.moveTo(x1,H); ctx.lineTo(x1,ty(p1.ele)); ctx.lineTo(x2,ty(p2.ele)); ctx.lineTo(x2,H);
+    ctx.fillStyle = grad; ctx.fill();
+  }
+
+  // Línea
+  ctx.beginPath();
+  profile.forEach((p,i) => i===0 ? ctx.moveTo(tx(p.d),ty(p.ele)) : ctx.lineTo(tx(p.d),ty(p.ele)));
+  ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  // Labels
+  ctx.fillStyle='#6b6f82'; ctx.font='9px Inter,sans-serif';
+  ctx.fillText(`${Math.round(mn)}m`, 2, H-2);
+  ctx.fillText(`${Math.round(mx)}m`, 2, 10);
+}
+
+// ── Hover en el perfil de elevación ──────────────────────────────────
+const elevCanvas = document.getElementById('elev-canvas');
+elevCanvas.addEventListener('mousemove', e => {
+  if(!profileData.length) return;
+  const rect = elevCanvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const pct = x / rect.width;
+  const maxD = profileData[profileData.length-1].d;
+  const targetD = pct * maxD;
+
+  // Encontrar punto más cercano
+  let closest = profileData[0];
+  let minDiff = Infinity;
+  profileData.forEach(p => {
+    const diff = Math.abs(p.d - targetD);
+    if(diff < minDiff) { minDiff=diff; closest=p; }
+  });
+
+  // Tooltip
+  const tooltip = document.getElementById('elev-tooltip');
+  const cursor  = document.getElementById('elev-cursor');
+  tooltip.style.display = 'block';
+  cursor.style.display = 'block';
+  cursor.style.left = x+'px';
+
+  const grade = Math.abs(closest.grade||0);
+  tooltip.innerHTML = `
+    <span style="color:var(--y)">${closest.d.toFixed(1)} km</span> &nbsp;
+    <span style="color:var(--t)">${Math.round(closest.ele)}m</span> &nbsp;
+    <span style="color:${gradeColor(grade)}">${grade.toFixed(1)}%</span>
+  `;
+  // Posición del tooltip
+  let tx = x+10;
+  if(tx+120 > rect.width) tx = x-125;
+  tooltip.style.left = tx+'px';
+  tooltip.style.top  = '4px';
+
+  // Marcador en el mapa
+  if(cursorMarker) cursorMarker.remove();
+  cursorMarker = L.circleMarker([closest.lat, closest.lng], {
+    radius:6, color:'#e8d01c', fillColor:'#e8d01c', fillOpacity:1, weight:2
+  }).addTo(map);
+});
+
+elevCanvas.addEventListener('mouseleave', () => {
+  document.getElementById('elev-tooltip').style.display = 'none';
+  document.getElementById('elev-cursor').style.display = 'none';
+  if(cursorMarker) { cursorMarker.remove(); cursorMarker=null; }
+});
+
+// ── Renderizar rampas ─────────────────────────────────────────────────
+function renderRamps(ramps) {
+  const list = document.getElementById('ramps-list');
+  document.getElementById('ramps-title').textContent = `Rampas detectadas (${ramps.length})`;
+
+  list.innerHTML = ramps.map((r,i) => {
+    const cat = gradeLabel(r.avgGrade);
+    const barW = Math.min(100, r.avgGrade/20*100);
+    return `
+    <div class="ramp-item" id="ramp-${r.idx}" onclick="focusRamp(${r.idx})">
+      <div class="ramp-header">
+        <div class="ramp-num" style="background:${cat.bg};color:${cat.col}">${r.idx}</div>
+        <div class="ramp-name">km ${r.startD.toFixed(1)} → ${r.endD.toFixed(1)}</div>
+        <span class="ramp-badge" style="background:${cat.bg};color:${cat.col}">${cat.txt}</span>
+      </div>
+      <div class="ramp-stats">
+        <div class="ramp-stat">
+          <div class="ramp-stat-val" style="color:${cat.col}">${r.avgGrade}%</div>
+          <div class="ramp-stat-lbl">Media</div>
+        </div>
+        <div class="ramp-stat">
+          <div class="ramp-stat-val" style="color:var(--r)">${r.maxGrade}%</div>
+          <div class="ramp-stat-lbl">Máx</div>
+        </div>
+        <div class="ramp-stat">
+          <div class="ramp-stat-val">+${r.dEle}m</div>
+          <div class="ramp-stat-lbl">${(r.distKm*1000).toFixed(0)}m</div>
+        </div>
+      </div>
+      <div class="grade-bar">
+        <div class="grade-fill" style="width:${barW}%;background:${cat.col}"></div>
+      </div>
+      <div class="ramp-chart">
+        <canvas id="ramp-canvas-${r.idx}" height="40"></canvas>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Dibujar mini gráficas
+  ramps.forEach(r => drawRampChart(r));
+}
+
+function drawRampChart(ramp) {
+  const canvas = document.getElementById(`ramp-canvas-${ramp.idx}`);
+  if(!canvas) return;
+  const W = canvas.offsetWidth || 280;
+  const H = 40;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const pts = ramp.points;
+  const eles = pts.map(p=>p.ele);
+  const mn=Math.min(...eles), mx=Math.max(...eles), rng=mx-mn||1;
+  const maxD = pts[pts.length-1].d - pts[0].d || 1;
+  const tx = p => ((p.d-pts[0].d)/maxD)*W;
+  const ty = e => H-2-((e-mn)/rng)*(H-6);
+  const cat = gradeLabel(ramp.avgGrade);
+
+  // Fill
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0, cat.col+'44');
+  grad.addColorStop(1, cat.col+'08');
+  ctx.beginPath();
+  ctx.moveTo(0,H);
+  pts.forEach(p => ctx.lineTo(tx(p),ty(p.ele)));
+  ctx.lineTo(W,H); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  pts.forEach((p,i) => i===0?ctx.moveTo(tx(p),ty(p.ele)):ctx.lineTo(tx(p),ty(p.ele)));
+  ctx.strokeStyle=cat.col; ctx.lineWidth=1.5; ctx.stroke();
+}
+
+// ── Focus en rampa ────────────────────────────────────────────────────
+let allRamps = [];
+function focusRamp(idx) {
+  document.querySelectorAll('.ramp-item').forEach(el => el.classList.remove('active'));
+  document.getElementById(`ramp-${idx}`)?.classList.add('active');
+  const ramp = allRamps.find(r=>r.idx===idx);
+  if(!ramp) return;
+  map.fitBounds([[ramp.startLat,ramp.startLng],[ramp.endLat,ramp.endLng]], {padding:[60,60]});
+  // Resaltar la rampa en el mapa
+  L.polyline(ramp.points.map(p=>[p.lat,p.lng]), {
+    color:'#e8d01c', weight:5, opacity:1
+  }).addTo(map).bindPopup(`Rampa ${idx}: ${ramp.avgGrade}% media, +${ramp.dEle}m`).openPopup();
+}
+
+// ── Cargar GPX ────────────────────────────────────────────────────────
+function loadGPX(input) {
+  const file = input.files[0];
+  if(!file) return;
+  document.getElementById('loading').classList.add('on');
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const pts     = parseGPX(e.target.result);
+      const profile = calcProfile(pts);
+      const ramps   = detectRamps(profile);
+      allRamps = ramps;
+
+      // Stats globales
+      const totalDist = profile[profile.length-1].d;
+      let asc=0, dsc=0;
+      for(let i=1;i<profile.length;i++) {
+        const d = profile[i].ele - profile[i-1].ele;
+        if(d>0) asc+=d; else dsc+=Math.abs(d);
+      }
+      document.getElementById('s-dist').textContent = totalDist.toFixed(1);
+      document.getElementById('s-time').textContent = Math.round(totalDist/20*60);
+      document.getElementById('s-asc').textContent  = Math.round(asc);
+      document.getElementById('s-desc').textContent = Math.round(dsc);
+
+      // Mostrar secciones
+      document.getElementById('stats-section').style.display = 'block';
+      document.getElementById('ramps-section').style.display = 'block';
+      document.getElementById('empty-state').style.display   = 'none';
+
+      // Dibujar
+      drawColoredRoute(profile);
+      drawElevation(profile);
+      renderRamps(ramps);
+
+      // Nombre del fichero
+      document.querySelector('.upload-title').textContent = file.name;
+      document.querySelector('.upload-sub').textContent   = `${pts.length} puntos · ${ramps.length} rampas`;
+
+    } catch(err) {
+      alert('Error leyendo el GPX: ' + err.message);
+    } finally {
+      document.getElementById('loading').classList.remove('on');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ── Drag & drop ───────────────────────────────────────────────────────
+const zone = document.getElementById('upload-zone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if(file?.name.endsWith('.gpx')) {
+    const input = document.getElementById('gpx-input');
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+    loadGPX(input);
+  }
+});
+
+// ── Recibir ruta desde planificador (localStorage) ────────────────────
+// Si venimos del planificador con una ruta calculada
+window.addEventListener('load', () => {
+  // Futuro: recibir geometría desde index.html via URL params o postMessage
+});
+</script>
+</body>
+</html>
